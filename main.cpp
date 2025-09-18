@@ -32,7 +32,7 @@ void parser(int argc, wchar_t* argv[], Options& options, wstring& sub_str, vecto
             if (s == L"-d")         options.recursive = true;
             else if (s == L"-i")    options.ignore_case = true;
             else if (s == L"-n")    options.show_line_numbers = true;
-        } else if (sub_str.empty()) {
+        } else if (sub_str.empty() && s.find(L"*.") != 0 && s.find(L"./") != 0 && s.find(L"C:/") != 0 && s.find(L"C:\\") != 0) {
             sub_str = s;
         } else {
             path p(s);
@@ -48,8 +48,12 @@ void parser(int argc, wchar_t* argv[], Options& options, wstring& sub_str, vecto
         }
     }
 
-    if (path_types.empty() && !global_files_type.empty()) {
-        path_types.emplace_back(current_path().wstring(), global_files_type);
+    if (path_types.empty()) {
+        if (!global_files_type.empty()) {
+            path_types.emplace_back(current_path().wstring(), global_files_type);
+        } else {
+            path_types.emplace_back(current_path().wstring(), vector<wstring>{});
+        }
     } else {
         for (auto& [path, types] : path_types) {
             if (types.empty()) {
@@ -134,10 +138,11 @@ wstring read_file(const path& file_path, const wstring& str, const Options& opti
 
 void search(const wstring& str, const Options& options, const vector<pair<wstring, vector<wstring>>>& path_types) {
     vector<wstring> files = get_files(options, path_types);
+
     if (files.empty()) {
         wcout << L"Файлы не найдены" << endl;
         return;
-    } else if (str == L" ") {
+    } else if (str == L"") {
         for (const auto& file : files) {
             wcout << L"Найден файл: " << file << L"\n";
         }
@@ -152,8 +157,7 @@ void search(const wstring& str, const Options& options, const vector<pair<wstrin
 }
 
 int wmain(int argc, wchar_t* argv[]) {
-    char *locale = setlocale(LC_ALL, "");
-    // wcout.imbue(locale(""));
+    wcout.imbue(locale(""));
 
     Options options;
     vector<wstring> files_type;
