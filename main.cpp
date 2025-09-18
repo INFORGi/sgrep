@@ -23,16 +23,24 @@ struct Options {
     bool show_line_numbers = false; // -n
 };
 
+void replace_slashes(wstring& s) {
+    size_t pos = 0;
+    while ((pos = s.find(L"\\")) != wstring::npos) {
+        s.replace(pos, 1, L"/");
+    }
+}
+
 void parser(int argc, wchar_t* argv[], Options& options, wstring& sub_str, vector<pair<wstring, vector<wstring>>>& path_types) {
     vector<wstring> global_files_type;
 
     for (int i = 1; i < argc; i++) {
         wstring s = argv[i];
+        replace_slashes(s);
         if (s.find(L"-") == 0) {
             if (s == L"-d")         options.recursive = true;
             else if (s == L"-i")    options.ignore_case = true;
             else if (s == L"-n")    options.show_line_numbers = true;
-        } else if (sub_str.empty() && s.find(L"*.") != 0 && s.find(L"./") != 0 && s.find(L"C:/") != 0 && s.find(L"C:\\") != 0) {
+        } else if (sub_str.empty() && s.find(L"*.") != 0 && s.find(L"./") != 0 && s.find(L"C:/") != 0) {
             sub_str = s;
         } else {
             path p(s);
