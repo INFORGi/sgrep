@@ -143,7 +143,7 @@ void search(const wstring& str, const Options& options, const vector<pair<wstrin
         }
     } else {
         for (const auto& file : files) {
-            wcout << file << "\n" << read_file(file, str, options);
+            wcout << file << "\n" << read_file(file, str, options) << endl;
         }
     }
 }
